@@ -74,6 +74,8 @@ def findMajority(A):
         return -1,total_iters
 
 def find_majority_divide_and_conquer(arr, counter):
+    counter=[0]
+    
     def helper(l, r):
         if l == r:
             counter[0] += 1
@@ -124,6 +126,7 @@ def quickSort(arr, low, high, counter):
         quickSort(arr, i + 2, high, counter)
 
 def majority_by_sort(arr, counter):
+    conter=[0]
     if not arr:
         return -1
 

@@ -67,10 +67,3 @@ def majority_by_sort(arr, counter):
         return candidate
     return -1
 
-
-arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-print("The majority element is:", findMajority(arr))
-arr2 = [1, 2, 8, 8, 5, 8, 7, 8, 9, 10]
-print("The majority element is:", findMajority(arr2))
-arr3 = [3, 2, 3, 3, 3, 6, 7, 3, 9, 3, 3, 1]
-print("The majority element is:", findMajority(arr3))

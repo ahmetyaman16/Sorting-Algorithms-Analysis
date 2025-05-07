@@ -244,12 +244,12 @@ if __name__ == '__main__':
         major_insertion, ver_ops = find_majority_in_sorted(sorted_arr)
         total_ops = sort_ops + ver_ops
 
-        major_hash, num_of_ops_hash   = hashing_based(arr)
-        major_boyer,   num_of_ops_bm     = boyer_moore(arr)
-        major_brute_force, num_of_ops_brute  = bruteForceMajority(arr)
-        major_merge, num_of_ops_merge        =  find_majority_by_merge(arr)
-        major_quick_sort,   num_of_ops_quick_sort =  majority_by_quick_sort(arr)
-        major_div_conq, num_of_div_conq        =  find_majority_divide_and_conquer(arr)
+        major_hash, num_of_ops_hash   = hashing_based(arr.copy())
+        major_boyer,   num_of_ops_bm     = boyer_moore(arr.copy())
+        major_brute_force, num_of_ops_brute  = bruteForceMajority(arr.copy())
+        major_merge, num_of_ops_merge        =  find_majority_by_merge(arr.copy())
+        major_quick_sort,   num_of_ops_quick_sort =  majority_by_quick_sort(arr.copy())
+        major_div_conq, num_of_div_conq        =  find_majority_divide_and_conquer(arr.copy())
         print("Input: ", arr)
         print("Method             | Majority element      | Number of basic operation")
         print(f"Insertion sort     | {major_insertion:3}                   |  {total_ops}")

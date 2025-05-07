@@ -153,9 +153,12 @@ def boyer_moore(arr):
     num_of_ops += 1               # final > test
     return (candidate if actual > len(arr)//2 else -1), num_of_ops
 
-def find_majority_divide_and_conquer(arr, counter):
-    counter=[0]
-    
+def find_majority_divide_and_conquer(arr):
+    counter = [0]
+
+    if not arr:
+        return -1, 0
+
     def helper(l, r):
         if l == r:
             counter[0] += 1
@@ -169,8 +172,7 @@ def find_majority_divide_and_conquer(arr, counter):
             counter[0] += 1
             return left
 
-        left_count = 0
-        right_count = 0
+        left_count = right_count = 0
         for i in range(l, r + 1):
             counter[0] += 1
             if arr[i] == left:
@@ -186,39 +188,38 @@ def find_majority_divide_and_conquer(arr, counter):
 
         return -1
 
+    majority = helper(0, len(arr) - 1)
+    return majority, counter[0]
+
+def majority_by_quick_sort(arr):
+    counter = [0]
+
     if not arr:
-        return -1
+        return -1, 0
 
-    return helper(0, len(arr) - 1)
-def quickSort(arr, low, high, counter):
-    if low < high:
-        pivot = arr[high]
-        i = low - 1
-        for j in range(low, high):
-            counter[0] += 1
-            if arr[j] <= pivot:
-                i += 1
-                arr[i], arr[j] = arr[j], arr[i]
+    def quickSort(arr, low, high):
+        if low < high:
+            pivot = arr[high]
+            i = low - 1
+            for j in range(low, high):
+                counter[0] += 1
+                if arr[j] <= pivot:
+                    i += 1
+                    arr[i], arr[j] = arr[j], arr[i]
+            arr[i + 1], arr[high] = arr[high], arr[i + 1]
+            quickSort(arr, low, i)
+            quickSort(arr, i + 2, high)
 
-        arr[i + 1], arr[high] = arr[high], arr[i + 1]
-
-        quickSort(arr, low, i, counter)
-        quickSort(arr, i + 2, high, counter)
-
-def majority_by_sort(arr, counter):
-    conter=[0]
-    if not arr:
-        return -1
-
-    quickSort(arr, 0, len(arr) - 1, counter)
+    arr = arr.copy()  # avoid modifying original
+    quickSort(arr, 0, len(arr) - 1)
 
     candidate = arr[len(arr) // 2]
     count = sum(1 for x in arr if x == candidate)
     counter[0] += len(arr)
 
     if count > len(arr) // 2:
-        return candidate
-    return -1
+        return candidate, counter[0]
+    return -1, counter[0]
 
 # Simple driver over fixed tests
 if __name__ == '__main__':
@@ -247,13 +248,16 @@ if __name__ == '__main__':
         major_boyer,   num_of_ops_bm     = boyer_moore(arr)
         major_brute_force, num_of_ops_brute  = bruteForceMajority(arr)
         major_merge, num_of_ops_merge        =  find_majority_by_merge(arr)
-
+        major_quick_sort,   num_of_ops_quick_sort =  majority_by_quick_sort(arr)
+        major_div_conq, num_of_div_conq        =  find_majority_divide_and_conquer(arr)
         print("Input: ", arr)
-        print("Method          | Majority element | Number of basic operation")
-        print(f"Insertion sort  | {major_insertion:3}              |  {total_ops}")
-        print(f"Hashing         | {major_hash:3}              |  {num_of_ops_hash}")
-        print(f"Boyer–Moore     | {major_boyer:3}              |  {num_of_ops_bm}")
-        print(f"Brute Force     | {major_brute_force:3}              |  {num_of_ops_brute}")
-        print(f"Merge sort     | {major_merge:3}              |  {num_of_ops_merge}")
+        print("Method             | Majority element      | Number of basic operation")
+        print(f"Insertion sort     | {major_insertion:3}                   |  {total_ops}")
+        print(f"Hashing            | {major_hash:3}                   |  {num_of_ops_hash}")
+        print(f"Boyer–Moore        | {major_boyer:3}                   |  {num_of_ops_bm}")
+        print(f"Brute Force        | {major_brute_force:3}                   |  {num_of_ops_brute}")
+        print(f"Merge sort         | {major_merge:3}                   |  {num_of_ops_merge}")
+        print(f"Quick sort         | {major_quick_sort:3}                   |  {num_of_ops_quick_sort}")
+        print(f"Divide and Conquer | {major_div_conq:3}                   |  {num_of_div_conq}")
         print(f"------------------------------------------------------------------------")
         print()

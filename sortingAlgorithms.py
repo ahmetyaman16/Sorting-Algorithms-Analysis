@@ -1,5 +1,13 @@
 import math
+import random
 
+def format_array(arr):
+    n = len(arr)
+    if n <= 10:
+        return str(arr)
+    else:
+        # show first 3 and last 3 elements
+        return str(arr[:3]) + ' ... ' + str(arr[-3:])
 def bruteForceMajority(A):
     n = len(A)
     iter = 0
@@ -193,71 +201,150 @@ def find_majority_divide_and_conquer(arr):
 
 def majority_by_quick_sort(arr):
     counter = [0]
-
     if not arr:
         return -1, 0
 
-    def quickSort(arr, low, high):
-        if low < high:
-            pivot = arr[high]
+    def quickSort(a, low, high):
+        while low < high:
+            # pivot is a[high]
+            pivot = a[high]
             i = low - 1
             for j in range(low, high):
                 counter[0] += 1
-                if arr[j] <= pivot:
+                if a[j] <= pivot:
                     i += 1
-                    arr[i], arr[j] = arr[j], arr[i]
-            arr[i + 1], arr[high] = arr[high], arr[i + 1]
-            quickSort(arr, low, i)
-            quickSort(arr, i + 2, high)
+                    a[i], a[j] = a[j], a[i]
+            a[i+1], a[high] = a[high], a[i+1]
+            p = i+1
 
-    arr = arr.copy()  # avoid modifying original
-    quickSort(arr, 0, len(arr) - 1)
+            # recurse on smaller side, loop on larger
+            if p - low < high - p:
+                quickSort(a, low, p-1)
+                low = p+1
+            else:
+                quickSort(a, p+1, high)
+                high = p-1
 
-    candidate = arr[len(arr) // 2]
-    count = sum(1 for x in arr if x == candidate)
-    counter[0] += len(arr)
+    a = arr.copy()
+    quickSort(a, 0, len(a)-1)
 
-    if count > len(arr) // 2:
-        return candidate, counter[0]
-    return -1, counter[0]
+    # median + verify
+    n = len(a)
+    cand = a[n//2]
+    count = sum(1 for x in a if x == cand)
+    counter[0] += n
+    return (cand if count > n//2 else -1), counter[0]
+
+def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
+    random.seed(seed)
+    catalog = {}
+    for n in sizes:
+        fam = {}
+        # edge cases
+        fam['empty']     = []
+        fam['singleton'] = [0] if n>=1 else []
+        # no majority
+        fam['no_majority'] = list(range(n))
+        # pick two “majority” symbols outside [0,n)
+        M1, M2 = n+1, n+2
+        # exact majority
+        k = n//2 + 1
+        rest = list(range(n, n + (n-k)))
+        fam['with_majority'] = [M1]*k + rest
+        random.shuffle(fam['with_majority'])
+        # all same
+        fam['all_same'] = [M1]*n
+        # sorted
+        asc = list(range(n))
+        fam['sorted_asc']  = asc.copy()
+        fam['sorted_desc'] = asc[::-1]
+        # almost sorted
+        a = asc.copy()
+        swaps = max(1, int(n * swap_frac))
+        for _ in range(swaps):
+            i, j = random.randrange(n), random.randrange(n)
+            a[i], a[j] = a[j], a[i]
+        fam['almost_sorted'] = a
+        # alternating
+        fam['alternating'] = [(M2 if i%2==0 else i) for i in range(n)]
+        # clustered
+        fam['clustered'] = [M2]*k + list(range(n + (n-k), n + 2*(n-k)))
+        # heavy hitter
+        num_hh = int(n * heavy_frac)
+        rest_hh = list(range(2*n, 2*n + (n - num_hh)))
+        hh = [M2]*num_hh + rest_hh
+        random.shuffle(hh)
+        fam['heavy_hitter'] = hh
+        # random families
+        fam['random_no_majority'] = random.sample(range(3*n, 10*n), k=n)
+        rm_rest = random.sample(range(10*n, 20*n), k=n-k)
+        arr = [M1]*k + rm_rest
+        random.shuffle(arr)
+        fam['random_with_majority'] = arr
+
+        catalog[n] = fam
+    return catalog
 
 # Simple driver over fixed tests
 if __name__ == '__main__':
-    tests = [
-        [],
-        [42],
-        [1, 2],
-        [3, 3],
-        [1, 2, 3, 4, 5, 6],
-        [9, 9, 9, 1, 2, 3, 4],
-        [7, 7, 7, 7, 7, 7],
-        [5, 1, 5, 2, 5, 3, 5],
-        [8, 8, 8, 8, 1, 2, 3],
-        [4, 4, 4, 4, 4, 1, 2],
-    ]
+    sizes  = [10, 100, 500, 1000]
+    catalog = generate_input_catalog(sizes)
 
+    # Full-name header
+    print("n    array                                         | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+    print("-"*130)
 
-    print(f"------------------------------------------------------------------------")
-    for arr in tests:
+    for n in sizes:
+        for fam_name, arr in catalog[n].items():
+            # run all seven
+            bf_maj,  bf_ops  = bruteForceMajority(arr.copy())
+            ms_maj,  ms_ops  = find_majority_by_merge(arr.copy())
+            is_maj,  is_ops  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+            hb_maj,  hb_ops  = hashing_based(arr.copy())
+            bm_maj,  bm_ops  = boyer_moore(arr.copy())
+            qs_maj,  qs_ops  = majority_by_quick_sort(arr.copy())
+            dc_maj,  dc_ops  = find_majority_divide_and_conquer(arr.copy())
 
-        sorted_arr, sort_ops = insertion_sort(arr.copy())
-        major_insertion, ver_ops = find_majority_in_sorted(sorted_arr)
-        total_ops = sort_ops + ver_ops
+            # print a single row for all algorithms (ops only, as per header)
+            print(f"{n:<4} {format_array(arr):<45} | "
+                  f"{bf_ops:>10} {ms_ops:>10} {is_ops:>10} {hb_ops:>10} "
+                  f"{bm_ops:>10} {qs_ops:>10} {dc_ops:>10}")
+        print("-"*130)
 
-        major_hash, num_of_ops_hash   = hashing_based(arr.copy())
-        major_boyer,   num_of_ops_bm     = boyer_moore(arr.copy())
-        major_brute_force, num_of_ops_brute  = bruteForceMajority(arr.copy())
-        major_merge, num_of_ops_merge        =  find_majority_by_merge(arr.copy())
-        major_quick_sort,   num_of_ops_quick_sort =  majority_by_quick_sort(arr.copy())
-        major_div_conq, num_of_div_conq        =  find_majority_divide_and_conquer(arr.copy())
-        print("Input: ", arr)
-        print("Method             | Majority element      | Number of basic operation")
-        print(f"Insertion sort     | {major_insertion:3}                   |  {total_ops}")
-        print(f"Hashing            | {major_hash:3}                   |  {num_of_ops_hash}")
-        print(f"Boyer–Moore        | {major_boyer:3}                   |  {num_of_ops_bm}")
-        print(f"Brute Force        | {major_brute_force:3}                   |  {num_of_ops_brute}")
-        print(f"Merge sort         | {major_merge:3}                   |  {num_of_ops_merge}")
-        print(f"Quick sort         | {major_quick_sort:3}                   |  {num_of_ops_quick_sort}")
-        print(f"Divide and Conquer | {major_div_conq:3}                   |  {num_of_div_conq}")
-        print(f"------------------------------------------------------------------------")
-        print()
+    # ── Table: Majority elements per algorithm ───────────────────────────────
+    print("\nMajority elements found by each algorithm:")
+    print("n    array                                         | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+    print("-"*130)
+    for n in sizes:
+        for fam_name, arr in catalog[n].items():
+            bf_maj, _  = bruteForceMajority(arr.copy())
+            ms_maj, _  = find_majority_by_merge(arr.copy())
+            is_maj, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+            hb_maj, _  = hashing_based(arr.copy())
+            bm_maj, _  = boyer_moore(arr.copy())
+            qs_maj, _  = majority_by_quick_sort(arr.copy())
+            dc_maj, _  = find_majority_divide_and_conquer(arr.copy())
+
+            print(f"{n:<4} {format_array(arr):<45} | "
+                  f"{str(bf_maj):>10} {str(ms_maj):>10} {str(is_maj):>10} {str(hb_maj):>10} "
+                  f"{str(bm_maj):>10} {str(qs_maj):>10} {str(dc_maj):>10}")
+        print("-"*130)
+
+    # ── Table: Majority elements per algorithm ───────────────────────────────
+    print("\nMajority elements found by each algorithm:")
+    print("n    array                                         | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+    print("-"*130)
+    for n in sizes:
+        for fam_name, arr in catalog[n].items():
+            bf_maj, _  = bruteForceMajority(arr.copy())
+            ms_maj, _  = find_majority_by_merge(arr.copy())
+            is_maj, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+            hb_maj, _  = hashing_based(arr.copy())
+            bm_maj, _  = boyer_moore(arr.copy())
+            qs_maj, _  = majority_by_quick_sort(arr.copy())
+            dc_maj, _  = find_majority_divide_and_conquer(arr.copy())
+
+            print(f"{n:<4} {format_array(arr):<45} | "
+                  f"{str(bf_maj):>10} {str(ms_maj):>10} {str(is_maj):>10} {str(hb_maj):>10} "
+                  f"{str(bm_maj):>10} {str(qs_maj):>10} {str(dc_maj):>10}")
+        print("-"*130)

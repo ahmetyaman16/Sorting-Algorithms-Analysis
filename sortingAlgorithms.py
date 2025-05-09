@@ -17,6 +17,7 @@ def bruteForceMajority(A):
             iter += 1
             if A[j] == A[i]:
                 count += 1
+        iter += 1
         if count > math.floor(n / 2):
            # print("Number of iterations:", iter)
             return A[i], iter
@@ -85,17 +86,11 @@ def insertion_sort(arr):
         j = i - 1
         num_of_ops += 1
         while j >= 0 and arr[j] > key:
-            num_of_ops += 2       # compare + shift
+            num_of_ops += 1       # compare + shift
             arr[j+1] = arr[j]
             j -= 1
-        num_of_ops += 1           # final failed compare
 
-        arr[j+1] = key
-        num_of_ops += 1           # assignment
-    return arr, num_of_ops
-
-
-# Finding the majority element after sorting
+        arr[j+1] = key # Finding the majority element after sorting
 def find_majority_in_sorted(arr):
 
     n = len(arr)
@@ -104,62 +99,63 @@ def find_majority_in_sorted(arr):
 
     median_element = arr[(n-1)//2] # pick median position
 
-    ver_num_of_ops = 0
+    iter = 0
     cnt = 0
     for x in arr:
-        ver_num_of_ops += 1
+        iter += 1
         if x == median_element:     # compare x == median_element
             cnt += 1
-    ver_num_of_ops += 1
+    iter += 1        # compare cnt > n/2
 
-    return (median_element if cnt > n//2 else -1),ver_num_of_ops # final > n//2 test
-
+    if cnt > n//2:
+        return median_element, iter
+    else:
+        return -1, iter
 
 # Hashing‐based majority
 def hashing_based(arr):
     freq = {}
     threshold = len(arr)//2
-    num_of_ops = 0
+    iter = 0
 
     for i in arr:
         if i in freq:
             freq[i] += 1
-            num_of_ops += 1       # update
+            iter += 1
         else:
             freq[i] = 1
-            num_of_ops += 1       # insertion
+            iter += 1
 
-        num_of_ops += 1           # compare freq[i] > threshold
+        iter += 1           # compare freq[i] > threshold
         if freq[i] > threshold:
-            return i, num_of_ops
+            return i, iter
 
-    return -1, num_of_ops
+    return -1, iter
+
 
 
 # Boyer–Moore majority vote
 def boyer_moore(arr):
-    num_of_ops = 0
+    iter = 0
     votes = 0
     candidate = None
 
     # candidate selection
     for i in arr:
-        num_of_ops += 1           # loop iteration
+        iter += 1           # loop iteration
         if votes == 0:
             candidate = i
-            num_of_ops += 1       # assignment
-        num_of_ops += 1           # compare i == candidate
+        iter += 1           # compare i == candidate
         votes += 1 if i == candidate else -1
 
     # verification
     actual = 0
     for i in arr:
-        num_of_ops += 1           # compare i == candidate
+        iter += 1           # compare i == candidate
         if i == candidate:
             actual += 1
-
-    num_of_ops += 1               # final > test
-    return (candidate if actual > len(arr)//2 else -1), num_of_ops
+    iter += 1               # final > test
+    return (candidate if actual > len(arr)//2 else -1), iter
 
 def find_majority_divide_and_conquer(arr):
     counter = [0]
@@ -190,8 +186,10 @@ def find_majority_divide_and_conquer(arr):
 
         majority_threshold = (r - l + 1) // 2
         if left_count > majority_threshold:
+            counter[0] += 1
             return left
         if right_count > majority_threshold:
+            counter[0] += 1
             return right
 
         return -1
@@ -199,41 +197,37 @@ def find_majority_divide_and_conquer(arr):
     majority = helper(0, len(arr) - 1)
     return majority, counter[0]
 
+
 def majority_by_quick_sort(arr):
     counter = [0]
+
     if not arr:
         return -1, 0
 
-    def quickSort(a, low, high):
-        while low < high:
-            # pivot is a[high]
-            pivot = a[high]
+    def quickSort(arr, low, high):
+        if low < high:
+            pivot = arr[high]
             i = low - 1
             for j in range(low, high):
                 counter[0] += 1
-                if a[j] <= pivot:
+                if arr[j] <= pivot:
                     i += 1
-                    a[i], a[j] = a[j], a[i]
-            a[i+1], a[high] = a[high], a[i+1]
-            p = i+1
+                    arr[i], arr[j] = arr[j], arr[i]
+            arr[i + 1], arr[high] = arr[high], arr[i + 1]
+            quickSort(arr, low, i)
+            quickSort(arr, i + 2, high)
 
-            # recurse on smaller side, loop on larger
-            if p - low < high - p:
-                quickSort(a, low, p-1)
-                low = p+1
-            else:
-                quickSort(a, p+1, high)
-                high = p-1
+    arr = arr.copy()  # avoid modifying original
+    quickSort(arr, 0, len(arr) - 1)
 
-    a = arr.copy()
-    quickSort(a, 0, len(a)-1)
+    candidate = arr[len(arr) // 2]
+    count = sum(1 for x in arr if x == candidate)
+    counter[0] += len(arr)
 
-    # median + verify
-    n = len(a)
-    cand = a[n//2]
-    count = sum(1 for x in a if x == cand)
-    counter[0] += n
-    return (cand if count > n//2 else -1), counter[0]
+    if count > len(arr) // 2:
+        return candidate, counter[0]
+    return -1, counter[0]
+
 
 def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
     random.seed(seed)

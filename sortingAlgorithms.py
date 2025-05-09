@@ -91,6 +91,7 @@ def insertion_sort(arr):
             j -= 1
 
         arr[j+1] = key # Finding the majority element after sorting
+    return arr,num_of_ops
 def find_majority_in_sorted(arr):
 
     n = len(arr)
@@ -200,33 +201,39 @@ def find_majority_divide_and_conquer(arr):
 
 def majority_by_quick_sort(arr):
     counter = [0]
-
     if not arr:
         return -1, 0
 
-    def quickSort(arr, low, high):
-        if low < high:
-            pivot = arr[high]
+    def quickSort(a, low, high):
+        while low < high:
+            # pivot is a[high]
+            pivot = a[high]
             i = low - 1
             for j in range(low, high):
                 counter[0] += 1
-                if arr[j] <= pivot:
+                if a[j] <= pivot:
                     i += 1
-                    arr[i], arr[j] = arr[j], arr[i]
-            arr[i + 1], arr[high] = arr[high], arr[i + 1]
-            quickSort(arr, low, i)
-            quickSort(arr, i + 2, high)
+                    a[i], a[j] = a[j], a[i]
+            a[i+1], a[high] = a[high], a[i+1]
+            p = i+1
 
-    arr = arr.copy()  # avoid modifying original
-    quickSort(arr, 0, len(arr) - 1)
+            # recurse on smaller side, loop on larger
+            if p - low < high - p:
+                quickSort(a, low, p-1)
+                low = p+1
+            else:
+                quickSort(a, p+1, high)
+                high = p-1
 
-    candidate = arr[len(arr) // 2]
-    count = sum(1 for x in arr if x == candidate)
-    counter[0] += len(arr)
+    a = arr.copy()
+    quickSort(a, 0, len(a)-1)
 
-    if count > len(arr) // 2:
-        return candidate, counter[0]
-    return -1, counter[0]
+    # median + verify
+    n = len(a)
+    cand = a[n//2]
+    count = sum(1 for x in a if x == cand)
+    counter[0] += n
+    return (cand if count > n//2 else -1), counter[0]
 
 
 def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):

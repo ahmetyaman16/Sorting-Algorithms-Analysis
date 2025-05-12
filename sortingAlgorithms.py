@@ -19,9 +19,7 @@ def bruteForceMajority(A):
             if A[j] == A[i]:
                 count += 1
         if count > math.floor(n / 2):
-           # print("Number of iterations:", iter)
             return A[i], iter
-   # print("Number of iterations:", iter)
     return -1, iter
 
 def merge(B, C, A, iter):
@@ -95,7 +93,7 @@ def insertion_sort(arr):
     return arr, num_of_ops
 
 
-# finding the majority element after sorting
+# Finding the majority element after sorting
 def find_majority_in_sorted(arr):
 
     n = len(arr)

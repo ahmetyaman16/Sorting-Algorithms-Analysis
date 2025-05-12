@@ -376,7 +376,7 @@ if __name__ == '__main__':
 
         print("\nMajority elements found by each algorithm:")
         print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-        print("-"*157)
+        print("-"*166)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major, _  = bruteForceMajority(arr.copy())
@@ -399,7 +399,7 @@ if __name__ == '__main__':
                 print(f"{n:<4} {format_array(arr):<70} | "
                       f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
                       f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10} {str(bitwise_maj):>10}")
-            print("-"*157)
+            print("-"*166)
 
     sys.stdout = orig_stdout  # back to console
 

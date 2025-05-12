@@ -314,11 +314,11 @@ if __name__ == '__main__':
     with open("output.txt", "w") as f:
         sys.stdout = f
 
-        sizes  = [8, 16, 32, 64, 128, 256, 512, 1024]
+        sizes  = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
         catalog = generate_input_catalog(sizes)
 
-        print("n    array                                                        | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-        print("-"*147)
+        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+        print("-"*157)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major,  brute_force_ops  = bruteForceMajority(arr.copy())
@@ -329,14 +329,14 @@ if __name__ == '__main__':
                 quick_sort_major,  quick_sort_ops  = majority_by_quick_sort(arr.copy())
                 div_conq_major,  div_conqt_ops  = find_majority_divide_and_conquer(arr.copy())
 
-                print(f"{n:<4} {format_array(arr):<60} | "
+                print(f"{n:<4} {format_array(arr):<70} | "
                       f"{brute_force_ops:>10} {merge_ops:>10} {insertion_sort_ops:>10} {hash_ops:>10} "
                       f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10}")
-            print("-"*147)
+            print("-"*157)
 
         print("\nMajority elements found by each algorithm:")
-        print("n    array                                                        | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-        print("-"*147)
+        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+        print("-"*157)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major, _  = bruteForceMajority(arr.copy())
@@ -348,9 +348,10 @@ if __name__ == '__main__':
                 div_conq_major, _  = find_majority_divide_and_conquer(arr.copy())
 
 
-                print(f"{n:<4} {format_array(arr):<60} | "
+                print(f"{n:<4} {format_array(arr):<70} | "
                       f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
                       f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10}")
-            print("-"*147)
+            print("-"*157)
+
 
 

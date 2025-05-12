@@ -6,8 +6,8 @@ def format_array(arr):
     if n <= 10:
         return str(arr)
     else:
-        # show first 3 and last 3 elements
-        return str(arr[:3]) + ' ... ' + str(arr[-3:])
+        # first and last 4 elements
+        return str(arr[:4]) + ' ... ' + str(arr[-4:])
 def bruteForceMajority(A):
     n = len(A)
     iter = 0
@@ -17,13 +17,11 @@ def bruteForceMajority(A):
             iter += 1
             if A[j] == A[i]:
                 count += 1
-        iter += 1
         if count > math.floor(n / 2):
            # print("Number of iterations:", iter)
             return A[i], iter
    # print("Number of iterations:", iter)
     return -1, iter
-
 
 def merge(B, C, A, iter):
     i=0
@@ -40,12 +38,12 @@ def merge(B, C, A, iter):
         k += 1
      # leftover from B
     while i < len(B):
-        iter[0] += 1              # ← and here
+        iter[0] += 1
         A[k] = B[i]
         i += 1; k += 1
     # leftover from C
     while j < len(C):
-        iter[0] += 1              # ← and here
+        iter[0] += 1
         A[k] = C[j]
         j += 1; k += 1
 
@@ -65,7 +63,7 @@ def mergeSortMajority(A, iter):
 
 def find_majority_by_merge(A):
     if len(A) == 0:
-        return -1, 0  # No operations, empty input
+        return -1, 0  # empty input
     iter = [0]
     mergeSortMajority(A, iter)
     total_iters = iter[0]
@@ -82,81 +80,85 @@ def find_majority_by_merge(A):
 def insertion_sort(arr):
     num_of_ops = 0
     for i in range(1, len(arr)):
-        key = arr[i]               # assignment of key & j
+        key = arr[i]
         j = i - 1
         num_of_ops += 1
         while j >= 0 and arr[j] > key:
-            num_of_ops += 1       # compare + shift
+            num_of_ops += 2
             arr[j+1] = arr[j]
             j -= 1
+        num_of_ops += 1
 
-        arr[j+1] = key # Finding the majority element after sorting
-    return arr,num_of_ops
+        arr[j+1] = key
+        num_of_ops += 1
+    return arr, num_of_ops
+
+
+# finding the majority element after sorting
 def find_majority_in_sorted(arr):
 
     n = len(arr)
     if n == 0:
         return -1, 0
 
-    median_element = arr[(n-1)//2] # pick median position
+    median_element = arr[(n-1)//2] # median position
 
-    iter = 0
+    ver_num_of_ops = 0
     cnt = 0
     for x in arr:
-        iter += 1
-        if x == median_element:     # compare x == median_element
+        ver_num_of_ops += 1
+        if x == median_element:
             cnt += 1
-    iter += 1        # compare cnt > n/2
+    ver_num_of_ops += 1
 
-    if cnt > n//2:
-        return median_element, iter
-    else:
-        return -1, iter
+    return (median_element if cnt > n//2 else -1),ver_num_of_ops # final > n//2 test
+
 
 # Hashing‐based majority
 def hashing_based(arr):
     freq = {}
     threshold = len(arr)//2
-    iter = 0
+    num_of_ops = 0
 
     for i in arr:
         if i in freq:
             freq[i] += 1
-            iter += 1
+            num_of_ops += 1
         else:
             freq[i] = 1
-            iter += 1
+            num_of_ops += 1
 
-        iter += 1           # compare freq[i] > threshold
+        num_of_ops += 1
         if freq[i] > threshold:
-            return i, iter
+            return i, num_of_ops
 
-    return -1, iter
-
+    return -1, num_of_ops
 
 
 # Boyer–Moore majority vote
 def boyer_moore(arr):
-    iter = 0
+    num_of_ops = 0
     votes = 0
     candidate = None
 
     # candidate selection
     for i in arr:
-        iter += 1           # loop iteration
+        num_of_ops += 1
         if votes == 0:
             candidate = i
-        iter += 1           # compare i == candidate
+            num_of_ops += 1
+        num_of_ops += 1           # compare i == candidate
         votes += 1 if i == candidate else -1
 
     # verification
     actual = 0
     for i in arr:
-        iter += 1           # compare i == candidate
+        num_of_ops += 1           # compare i == candidate
         if i == candidate:
             actual += 1
-    iter += 1               # final > test
-    return (candidate if actual > len(arr)//2 else -1), iter
+
+    num_of_ops += 1               # final > test
+    return (candidate if actual > len(arr)//2 else -1), num_of_ops
 
 def find_majority_divide_and_conquer(arr):
     counter = [0]
@@ -187,17 +189,14 @@ def find_majority_divide_and_conquer(arr):
 
         majority_threshold = (r - l + 1) // 2
         if left_count > majority_threshold:
-            counter[0] += 1
             return left
         if right_count > majority_threshold:
-            counter[0] += 1
             return right
 
         return -1
 
     majority = helper(0, len(arr) - 1)
     return majority, counter[0]
-
 
 def majority_by_quick_sort(arr):
     counter = [0]
@@ -234,7 +233,6 @@ def majority_by_quick_sort(arr):
     count = sum(1 for x in a if x == cand)
     counter[0] += n
     return (cand if count > n//2 else -1), counter[0]
-
 
 def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
     random.seed(seed)
@@ -283,69 +281,74 @@ def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
         random.shuffle(arr)
         fam['random_with_majority'] = arr
 
+        # ------------------------------------------------------------------
+        # Extra test patterns to exercise best / worst cases of each algorithm
+        # ------------------------------------------------------------------
+
+        # 1. maj_first  – majority element appears at the very start (best for brute‑force)
+        maj_first = [M1] * k + list(range(30 * n, 30 * n + (n - k)))
+        fam['maj_first'] = maj_first
+
+        # 2. maj_last   – majority element clustered at the end (worst for brute‑force)
+        maj_last = list(range(40 * n, 40 * n + (n - k))) + [M1] * k
+        fam['maj_last'] = maj_last
+
+        # 3. median_pivot – array whose first element is the median value
+        median_val = n // 2
+        median_tail = [x for x in range(50 * n, 50 * n + n - 1)]
+        random.shuffle(median_tail)
+        median_pivot = [median_val] + median_tail
+        fam['median_pivot'] = median_pivot
+
+        # 4. single_value – explicit alias of the all‑same array
+        fam['single_value'] = fam['all_same']
+
+        # 5. all_distinct – explicit alias of the no‑majority / all‑unique case
+        fam['all_distinct'] = fam['no_majority']
+
         catalog[n] = fam
     return catalog
 
-# Simple driver over fixed tests
 if __name__ == '__main__':
-    sizes  = [10, 100, 500, 1000]
-    catalog = generate_input_catalog(sizes)
+    import sys
+    with open("output.txt", "w") as f:
+        sys.stdout = f
 
-    # Full-name header
-    print("n    array                                         | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-    print("-"*130)
+        sizes  = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
+        catalog = generate_input_catalog(sizes)
 
-    for n in sizes:
-        for fam_name, arr in catalog[n].items():
-            # run all seven
-            bf_maj,  bf_ops  = bruteForceMajority(arr.copy())
-            ms_maj,  ms_ops  = find_majority_by_merge(arr.copy())
-            is_maj,  is_ops  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
-            hb_maj,  hb_ops  = hashing_based(arr.copy())
-            bm_maj,  bm_ops  = boyer_moore(arr.copy())
-            qs_maj,  qs_ops  = majority_by_quick_sort(arr.copy())
-            dc_maj,  dc_ops  = find_majority_divide_and_conquer(arr.copy())
+        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+        print("-"*157)
+        for n in sizes:
+            for fam_name, arr in catalog[n].items():
+                brute_force_major,  brute_force_ops  = bruteForceMajority(arr.copy())
+                merge_major,  merge_ops  = find_majority_by_merge(arr.copy())
+                insertion_sort_major,  insertion_sort_ops  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+                hash_major,  hash_ops  = hashing_based(arr.copy())
+                boyer_major,  boyer_ops  = boyer_moore(arr.copy())
+                quick_sort_major,  quick_sort_ops  = majority_by_quick_sort(arr.copy())
+                div_conq_major,  div_conqt_ops  = find_majority_divide_and_conquer(arr.copy())
 
-            # print a single row for all algorithms (ops only, as per header)
-            print(f"{n:<4} {format_array(arr):<45} | "
-                  f"{bf_ops:>10} {ms_ops:>10} {is_ops:>10} {hb_ops:>10} "
-                  f"{bm_ops:>10} {qs_ops:>10} {dc_ops:>10}")
-        print("-"*130)
+                print(f"{n:<4} {format_array(arr):<70} | "
+                      f"{brute_force_ops:>10} {merge_ops:>10} {insertion_sort_ops:>10} {hash_ops:>10} "
+                      f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10}")
+            print("-"*157)
 
-    # ── Table: Majority elements per algorithm ───────────────────────────────
-    print("\nMajority elements found by each algorithm:")
-    print("n    array                                         | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-    print("-"*130)
-    for n in sizes:
-        for fam_name, arr in catalog[n].items():
-            bf_maj, _  = bruteForceMajority(arr.copy())
-            ms_maj, _  = find_majority_by_merge(arr.copy())
-            is_maj, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
-            hb_maj, _  = hashing_based(arr.copy())
-            bm_maj, _  = boyer_moore(arr.copy())
-            qs_maj, _  = majority_by_quick_sort(arr.copy())
-            dc_maj, _  = find_majority_divide_and_conquer(arr.copy())
+        print("\nMajority elements found by each algorithm:")
+        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+        print("-"*157)
+        for n in sizes:
+            for fam_name, arr in catalog[n].items():
+                brute_force_major, _  = bruteForceMajority(arr.copy())
+                merge_major, _  = find_majority_by_merge(arr.copy())
+                insertion_sort_major, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+                hash_major, _  = hashing_based(arr.copy())
+                boyer_major, _  = boyer_moore(arr.copy())
+                quick_sort_major, _  = majority_by_quick_sort(arr.copy())
+                div_conq_major, _  = find_majority_divide_and_conquer(arr.copy())
 
-            print(f"{n:<4} {format_array(arr):<45} | "
-                  f"{str(bf_maj):>10} {str(ms_maj):>10} {str(is_maj):>10} {str(hb_maj):>10} "
-                  f"{str(bm_maj):>10} {str(qs_maj):>10} {str(dc_maj):>10}")
-        print("-"*130)
 
-    # ── Table: Majority elements per algorithm ───────────────────────────────
-    print("\nMajority elements found by each algorithm:")
-    print("n    array                                         | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-    print("-"*130)
-    for n in sizes:
-        for fam_name, arr in catalog[n].items():
-            bf_maj, _  = bruteForceMajority(arr.copy())
-            ms_maj, _  = find_majority_by_merge(arr.copy())
-            is_maj, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
-            hb_maj, _  = hashing_based(arr.copy())
-            bm_maj, _  = boyer_moore(arr.copy())
-            qs_maj, _  = majority_by_quick_sort(arr.copy())
-            dc_maj, _  = find_majority_divide_and_conquer(arr.copy())
-
-            print(f"{n:<4} {format_array(arr):<45} | "
-                  f"{str(bf_maj):>10} {str(ms_maj):>10} {str(is_maj):>10} {str(hb_maj):>10} "
-                  f"{str(bm_maj):>10} {str(qs_maj):>10} {str(dc_maj):>10}")
-        print("-"*130)
+                print(f"{n:<4} {format_array(arr):<70} | "
+                      f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
+                      f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10}")
+            print("-"*157)

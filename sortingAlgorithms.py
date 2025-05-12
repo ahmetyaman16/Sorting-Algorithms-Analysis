@@ -91,7 +91,7 @@ def insertion_sort(arr):
         num_of_ops += 1
 
         arr[j+1] = key
-        num_of_ops += 1
+
     return arr, num_of_ops
 
 
@@ -147,7 +147,6 @@ def boyer_moore(arr):
         num_of_ops += 1
         if votes == 0:
             candidate = i
-            num_of_ops += 1
         num_of_ops += 1           # compare i == candidate
         votes += 1 if i == candidate else -1
 
@@ -190,8 +189,10 @@ def find_majority_divide_and_conquer(arr):
 
         majority_threshold = (r - l + 1) // 2
         if left_count > majority_threshold:
+            counter[0] += 1
             return left
         if right_count > majority_threshold:
+            counter[0] += 1
             return right
 
         return -1

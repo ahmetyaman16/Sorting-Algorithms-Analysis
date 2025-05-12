@@ -310,43 +310,46 @@ def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
     return catalog
 
 if __name__ == '__main__':
-    sizes  = [8, 16, 32, 64, 128, 256, 512, 1024]
-    catalog = generate_input_catalog(sizes)
+    import sys
+    with open("output.txt", "w") as f:
+        sys.stdout = f
 
-    print("n    array                                                        | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-    print("-"*130)
-    for n in sizes:
-        for fam_name, arr in catalog[n].items():
-            brute_force_major,  brute_force_ops  = bruteForceMajority(arr.copy())
-            merge_major,  merge_ops  = find_majority_by_merge(arr.copy())
-            insertion_sort_major,  insertion_sort_ops  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
-            hash_major,  hash_ops  = hashing_based(arr.copy())
-            boyer_major,  boyer_ops  = boyer_moore(arr.copy())
-            quick_sort_major,  quick_sort_ops  = majority_by_quick_sort(arr.copy())
-            div_conq_major,  div_conqt_ops  = find_majority_divide_and_conquer(arr.copy())
+        sizes  = [8, 16, 32, 64, 128, 256, 512, 1024]
+        catalog = generate_input_catalog(sizes)
 
-            print(f"{n:<4} {format_array(arr):<60} | "
-                  f"{brute_force_ops:>10} {merge_ops:>10} {insertion_sort_ops:>10} {hash_ops:>10} "
-                  f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10}")
+        print("n    array                                                        | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
         print("-"*130)
+        for n in sizes:
+            for fam_name, arr in catalog[n].items():
+                brute_force_major,  brute_force_ops  = bruteForceMajority(arr.copy())
+                merge_major,  merge_ops  = find_majority_by_merge(arr.copy())
+                insertion_sort_major,  insertion_sort_ops  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+                hash_major,  hash_ops  = hashing_based(arr.copy())
+                boyer_major,  boyer_ops  = boyer_moore(arr.copy())
+                quick_sort_major,  quick_sort_ops  = majority_by_quick_sort(arr.copy())
+                div_conq_major,  div_conqt_ops  = find_majority_divide_and_conquer(arr.copy())
 
-    #majority elements per algorithm
-    print("\nMajority elements found by each algorithm:")
-    print("n    array                                                        | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-    print("-"*130)
-    for n in sizes:
-        for fam_name, arr in catalog[n].items():
-            brute_force_major, _  = bruteForceMajority(arr.copy())
-            merge_major, _  = find_majority_by_merge(arr.copy())
-            insertion_sort_major, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
-            hash_major, _  = hashing_based(arr.copy())
-            boyer_major, _  = boyer_moore(arr.copy())
-            quick_sort_major, _  = majority_by_quick_sort(arr.copy())
-            div_conq_major, _  = find_majority_divide_and_conquer(arr.copy())
+                print(f"{n:<4} {format_array(arr):<60} | "
+                      f"{brute_force_ops:>10} {merge_ops:>10} {insertion_sort_ops:>10} {hash_ops:>10} "
+                      f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10}")
+            print("-"*130)
 
-            print(f"{n:<4} {format_array(arr):<60} | "
-                  f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
-                  f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10}")
+        print("\nMajority elements found by each algorithm:")
+        print("n    array                                                        | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
         print("-"*130)
+        for n in sizes:
+            for fam_name, arr in catalog[n].items():
+                brute_force_major, _  = bruteForceMajority(arr.copy())
+                merge_major, _  = find_majority_by_merge(arr.copy())
+                insertion_sort_major, _  = find_majority_in_sorted(insertion_sort(arr.copy())[0])
+                hash_major, _  = hashing_based(arr.copy())
+                boyer_major, _  = boyer_moore(arr.copy())
+                quick_sort_major, _  = majority_by_quick_sort(arr.copy())
+                div_conq_major, _  = find_majority_divide_and_conquer(arr.copy())
+
+                print(f"{n:<4} {format_array(arr):<60} | "
+                      f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
+                      f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10}")
+            print("-"*130)
 
 

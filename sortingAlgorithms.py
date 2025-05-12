@@ -374,7 +374,7 @@ if __name__ == '__main__':
             print("-"*166)
 
         print("\nMajority elements found by each algorithm:")
-        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
+        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq  Bitwise")
         print("-"*166)
         for n in sizes:
             for fam_name, arr in catalog[n].items():

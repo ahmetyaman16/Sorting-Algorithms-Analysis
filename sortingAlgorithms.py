@@ -1,5 +1,6 @@
 import math
 import random
+import pandas as pd
 
 def format_array(arr):
     n = len(arr)
@@ -90,7 +91,7 @@ def insertion_sort(arr):
         num_of_ops += 1
 
         arr[j+1] = key
-        num_of_ops += 1
+
     return arr, num_of_ops
 
 
@@ -146,7 +147,6 @@ def boyer_moore(arr):
         num_of_ops += 1
         if votes == 0:
             candidate = i
-            num_of_ops += 1
         num_of_ops += 1           # compare i == candidate
         votes += 1 if i == candidate else -1
 
@@ -189,8 +189,10 @@ def find_majority_divide_and_conquer(arr):
 
         majority_threshold = (r - l + 1) // 2
         if left_count > majority_threshold:
+            counter[0] += 1
             return left
         if right_count > majority_threshold:
+            counter[0] += 1
             return right
 
         return -1
@@ -234,6 +236,37 @@ def majority_by_quick_sort(arr):
     counter[0] += n
     return (cand if count > n//2 else -1), counter[0]
 
+def bitwise_majority(arr, word_bits=None):
+    n = len(arr)
+    if n == 0:
+        return -1, 0
+
+    if word_bits is None:
+        word_bits = max(x.bit_length() for x in arr) or 1
+
+    ops = 0
+    candidate = 0
+
+    # first pass – build candidate
+    for bit in range(word_bits):
+        ones = 0
+        for x in arr:
+            ops += 1
+            if (x >> bit) & 1:
+                ones += 1
+        ops += 1
+        if ones > n // 2:
+            candidate |= (1 << bit)
+
+    # second pass – verify
+    count = 0
+    for x in arr:
+        ops += 1
+        if x == candidate:
+            count += 1
+    ops += 1
+
+    return (candidate if count > n // 2 else -1), ops
 def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
     random.seed(seed)
     catalog = {}
@@ -281,29 +314,25 @@ def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
         random.shuffle(arr)
         fam['random_with_majority'] = arr
 
-        # ------------------------------------------------------------------
-        # Extra test patterns to exercise best / worst cases of each algorithm
-        # ------------------------------------------------------------------
-
-        # 1. maj_first  – majority element appears at the very start (best for brute‑force)
+        # majority element appears at the very start (best for brute‑force)
         maj_first = [M1] * k + list(range(30 * n, 30 * n + (n - k)))
         fam['maj_first'] = maj_first
 
-        # 2. maj_last   – majority element clustered at the end (worst for brute‑force)
+        # majority element clustered at the end (worst for brute‑force)
         maj_last = list(range(40 * n, 40 * n + (n - k))) + [M1] * k
         fam['maj_last'] = maj_last
 
-        # 3. median_pivot – array whose first element is the median value
+        # array whose first element is the median value
         median_val = n // 2
         median_tail = [x for x in range(50 * n, 50 * n + n - 1)]
         random.shuffle(median_tail)
         median_pivot = [median_val] + median_tail
         fam['median_pivot'] = median_pivot
 
-        # 4. single_value – explicit alias of the all‑same array
+        # explicit alias of the all‑same array
         fam['single_value'] = fam['all_same']
 
-        # 5. all_distinct – explicit alias of the no‑majority / all‑unique case
+        # all‑unique case
         fam['all_distinct'] = fam['no_majority']
 
         catalog[n] = fam
@@ -311,14 +340,17 @@ def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):
 
 if __name__ == '__main__':
     import sys
+    orig_stdout = sys.stdout
+    op_rows = []
+    maj_rows = []
     with open("output.txt", "w") as f:
         sys.stdout = f
 
         sizes  = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
         catalog = generate_input_catalog(sizes)
 
-        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-        print("-"*157)
+        print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq  Bitwise")
+        print("-"*166)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major,  brute_force_ops  = bruteForceMajority(arr.copy())
@@ -328,15 +360,24 @@ if __name__ == '__main__':
                 boyer_major,  boyer_ops  = boyer_moore(arr.copy())
                 quick_sort_major,  quick_sort_ops  = majority_by_quick_sort(arr.copy())
                 div_conq_major,  div_conqt_ops  = find_majority_divide_and_conquer(arr.copy())
+                bitwise_maj, bitwise_ops        =  bitwise_majority(arr.copy())
+
+                op_rows.append({
+                    "n": n, "family": fam_name, "array": format_array(arr),
+                    "BruteForce": brute_force_ops, "MergeSort": merge_ops,
+                    "Insertion": insertion_sort_ops, "Hashing": hash_ops,
+                    "BoyerMoore": boyer_ops, "QuickSort": quick_sort_ops,
+                    "DivideConq": div_conqt_ops, "Bitwise": bitwise_ops,
+                })
 
                 print(f"{n:<4} {format_array(arr):<70} | "
                       f"{brute_force_ops:>10} {merge_ops:>10} {insertion_sort_ops:>10} {hash_ops:>10} "
-                      f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10}")
-            print("-"*157)
+                      f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10} {bitwise_ops:>10}")
+            print("-"*166)
 
         print("\nMajority elements found by each algorithm:")
         print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq")
-        print("-"*157)
+        print("-"*166)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major, _  = bruteForceMajority(arr.copy())
@@ -346,12 +387,26 @@ if __name__ == '__main__':
                 boyer_major, _  = boyer_moore(arr.copy())
                 quick_sort_major, _  = majority_by_quick_sort(arr.copy())
                 div_conq_major, _  = find_majority_divide_and_conquer(arr.copy())
+                bitwise_maj, _  = bitwise_majority(arr.copy())
 
+                maj_rows.append({
+                    "n": n, "family": fam_name, "array": format_array(arr),
+                    "BruteForce": brute_force_major, "MergeSort": merge_major,
+                    "Insertion": insertion_sort_major, "Hashing": hash_major,
+                    "BoyerMoore": boyer_major, "QuickSort": quick_sort_major,
+                    "DivideConq": div_conq_major, "Bitwise": bitwise_maj,
+                })
 
                 print(f"{n:<4} {format_array(arr):<70} | "
                       f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
-                      f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10}")
-            print("-"*157)
+                      f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10} {str(bitwise_maj):>10}")
+            print("-"*166)
 
+    sys.stdout = orig_stdout  # back to console
 
+    ops_df = pd.DataFrame(op_rows)
+    maj_df = pd.DataFrame(maj_rows)
 
+    with pd.ExcelWriter("analysis.xlsx", engine="openpyxl") as xl:
+        ops_df.to_excel(xl, sheet_name="operations", index=False)
+        maj_df.to_excel(xl, sheet_name="majorities", index=False)

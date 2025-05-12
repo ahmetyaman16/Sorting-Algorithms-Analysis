@@ -17,6 +17,7 @@ def bruteForceMajority(A):
             iter += 1
             if A[j] == A[i]:
                 count += 1
+        iter += 1
         if count > math.floor(n / 2):
            # print("Number of iterations:", iter)
             return A[i], iter
@@ -84,13 +85,13 @@ def insertion_sort(arr):
         j = i - 1
         num_of_ops += 1
         while j >= 0 and arr[j] > key:
-            num_of_ops += 2
+            num_of_ops += 1
             arr[j+1] = arr[j]
             j -= 1
         num_of_ops += 1
 
         arr[j+1] = key
-        num_of_ops += 1
+
     return arr, num_of_ops
 
 
@@ -146,7 +147,6 @@ def boyer_moore(arr):
         num_of_ops += 1
         if votes == 0:
             candidate = i
-            num_of_ops += 1
         num_of_ops += 1           # compare i == candidate
         votes += 1 if i == candidate else -1
 
@@ -156,7 +156,6 @@ def boyer_moore(arr):
         num_of_ops += 1           # compare i == candidate
         if i == candidate:
             actual += 1
-
     num_of_ops += 1               # final > test
     return (candidate if actual > len(arr)//2 else -1), num_of_ops
 
@@ -189,8 +188,10 @@ def find_majority_divide_and_conquer(arr):
 
         majority_threshold = (r - l + 1) // 2
         if left_count > majority_threshold:
+            counter[0] += 1
             return left
         if right_count > majority_threshold:
+            counter[0] += 1
             return right
 
         return -1
@@ -232,6 +233,7 @@ def majority_by_quick_sort(arr):
     cand = a[n//2]
     count = sum(1 for x in a if x == cand)
     counter[0] += n
+    counter[0] += 1
     return (cand if count > n//2 else -1), counter[0]
 
 def generate_input_catalog(sizes, swap_frac=0.05, heavy_frac=0.9, seed=0):

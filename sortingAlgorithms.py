@@ -349,7 +349,7 @@ if __name__ == '__main__':
         catalog = generate_input_catalog(sizes)
 
         print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq  Bitwise")
-        print("-"*157)
+        print("-"*166)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major,  brute_force_ops  = bruteForceMajority(arr.copy())
@@ -372,11 +372,11 @@ if __name__ == '__main__':
                 print(f"{n:<4} {format_array(arr):<70} | "
                       f"{brute_force_ops:>10} {merge_ops:>10} {insertion_sort_ops:>10} {hash_ops:>10} "
                       f"{boyer_ops:>10} {quick_sort_ops:>10} {div_conqt_ops:>10} {bitwise_ops:>10}")
-            print("-"*157)
+            print("-"*166)
 
         print("\nMajority elements found by each algorithm:")
         print("n    array                                                                  | BruteForce  MergeSort  Insertion  Hashing  BoyerMoore  QuickSort  DivideConq Bitwise")
-        print("-"*157)
+        print("-"*166)
         for n in sizes:
             for fam_name, arr in catalog[n].items():
                 brute_force_major, _  = bruteForceMajority(arr.copy())
@@ -386,7 +386,7 @@ if __name__ == '__main__':
                 boyer_major, _  = boyer_moore(arr.copy())
                 quick_sort_major, _  = majority_by_quick_sort(arr.copy())
                 div_conq_major, _  = find_majority_divide_and_conquer(arr.copy())
-                bitwise_maj,  = bitwise_majority(arr.copy())
+                bitwise_maj, _ = bitwise_majority(arr.copy())
 
                 maj_rows.append({
                     "n": n, "family": fam_name, "array": format_array(arr),
@@ -399,7 +399,7 @@ if __name__ == '__main__':
                 print(f"{n:<4} {format_array(arr):<70} | "
                       f"{str(brute_force_major):>10} {str(merge_major):>10} {str(insertion_sort_major):>10} {str(hash_major):>10} "
                       f"{str(boyer_major):>10} {str(quick_sort_major):>10} {str(div_conq_major):>10} {str(bitwise_maj):>10}")
-            print("-"*157)
+            print("-"*166)
 
     sys.stdout = orig_stdout  # back to console
 

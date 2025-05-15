@@ -51,7 +51,7 @@ The following algorithms were implemented and tested for performance:
 
 This project was collaboratively developed by:
 
-- [Ahmet Salih Yaman](https://github.com/ahmetyaman16): Implemented the majority of the algorithms, designed test cases, and handled performance analysis.
+- [Ahmet Salih Yaman](https://github.com/ahmetyaman16): Implemented the majority of the algorithms(Brute Force - Merge Sort), designed test cases, and handled performance analysis.
 - [Elman Kakharmanov](https://github.com/Elllmaan): Contributed to the implementation of sorting-based approaches and prepared the data visualization and graphs.
 - [Esma Nur Gezi](https://github.com/esmagezi): Worked on experiment design, prepared the final report, and assisted in implementing hash-based and Boyer-Moore algorithms.
 
